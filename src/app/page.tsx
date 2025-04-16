@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { UserCircleIcon, SparklesIcon, BoltIcon, HeartIcon, MoonIcon, WrenchScrewdriverIcon, CubeIcon, BuildingLibraryIcon } from '@heroicons/react/24/outline';
 import { useEffect } from "react";
 import { firebaseApp, auth, db } from "@/lib/firebase";
+import { Home as HomeIcon, Sparkles, Users, MessageCircle, LifeBuoy, LogIn, UserPlus, ArrowRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 // Updated placeholder data with existing SVGs
 const creators = [
@@ -79,34 +81,32 @@ const creators = [
 const bannerImageUrl = "/placeholder-banner.jpg";
 
 export default function Home() {
+  const pathname = usePathname();
   // Firebase initialization 
   useEffect(() => {
     console.log("Firebase initialized:", firebaseApp);
     // You can use auth and db here
   }, []);
 
+  // Navigation config
+  const navLinks = [
+    { href: '/', label: 'Home', icon: <HomeIcon className="h-5 w-5 mr-2" /> },
+    { href: '/features', label: 'Features', icon: <Sparkles className="h-5 w-5 mr-2" /> },
+    { href: '/creators', label: 'Creators', icon: <Users className="h-5 w-5 mr-2" /> },
+    { href: '/community', label: 'Community', icon: <MessageCircle className="h-5 w-5 mr-2" /> },
+    { href: '/support', label: 'Support', icon: <LifeBuoy className="h-5 w-5 mr-2" /> },
+    { href: '/login', label: 'Login', icon: <LogIn className="h-5 w-5 mr-2" /> },
+  ];
+
+  // Banner buttons config
+  const bannerButtons = [
+    { href: '/signup', label: 'Get Started Now', icon: <UserPlus className="h-5 w-5 mr-2" />, style: 'primary' },
+    { href: '/login', label: 'Login', icon: <LogIn className="h-5 w-5 mr-2" />, style: 'secondary' },
+    { href: '/features', label: 'Features', icon: <ArrowRight className="h-5 w-5 mr-2" />, style: 'outline' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 font-[family-name:var(--font-geist-sans)]">
-      {/* Header Navigation - Updated max-width */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
-         {/* Replaced container with max-w-[1400px] */}
-         <nav className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
-           <Link href="/" className="flex items-center gap-2">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75zm0 3.5a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM12 14l-4-4h8l-4 4z" />
-             </svg>
-             <span className="text-xl font-bold text-gray-800">BattleTCG</span>
-           </Link>
-           <ul className="flex space-x-6 items-center">
-             <li><Link href="/features" className="text-gray-600 hover:text-red-600 transition-colors duration-300">Features</Link></li>
-             <li><Link href="/creators" className="text-gray-600 hover:text-red-600 transition-colors duration-300">Creators</Link></li>
-             <li><Link href="/community" className="text-gray-600 hover:text-red-600 transition-colors duration-300">Community</Link></li>
-             <li><Link href="/support" className="text-gray-600 hover:text-red-600 transition-colors duration-300">Support</Link></li>
-             <li><Link href="/login" className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300 shadow hover:shadow-md">Login</Link></li>
-           </ul>
-         </nav>
-       </header>
-
       <main>
         {/* Redesigned Banner Section */}
         <section
@@ -125,35 +125,22 @@ export default function Home() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* Get Started Now Button */}
-              <Link
-                href="/signup"
-                className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 shadow-red-600/40 relative overflow-hidden group"
-              >
-                 Get Started Now
-                 {/* Underline glow effect */}
-                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-300 opacity-0 group-hover:opacity-100 group-hover:scale-x-150 transition-all duration-300 ease-out"></span>
-              </Link>
-
-              {/* Login Button */}
-              <Link
-                href="/login"
-                className="inline-block bg-red-600/90 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 shadow-red-600/30 relative overflow-hidden group"
-              >
-                 Login
-                 {/* Underline glow effect */}
-                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-300 opacity-0 group-hover:opacity-100 group-hover:scale-x-150 transition-all duration-300 ease-out"></span>
-              </Link>
-
-              {/* Features Button */}
-              <Link
-                href="/features"
-                className="inline-block bg-transparent border-2 border-red-500 hover:bg-red-500/20 text-white font-semibold py-[10px] px-8 rounded-lg text-lg transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 relative overflow-hidden group"
-              >
-                 Features
-                 {/* Underline glow effect - Adjusted for border button */}
-                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-400 opacity-0 group-hover:opacity-100 group-hover:scale-x-150 transition-all duration-300 ease-out"></span>
-              </Link>
+              {bannerButtons.map(btn => (
+                <a
+                  key={btn.href}
+                  href={btn.href}
+                  className={`inline-flex items-center justify-center font-semibold py-3 px-8 rounded-lg text-lg transition-all duration-300 shadow group relative overflow-hidden
+                    ${btn.style === 'primary' ?
+                      'bg-red-600 hover:bg-red-700 text-white shadow-red-600/40 hover:shadow-xl hover:scale-105 ring-2 ring-red-400 hover:ring-4'
+                    : btn.style === 'secondary' ?
+                      'bg-red-600/90 hover:bg-red-700 text-white shadow-md hover:shadow-lg hover:scale-105 shadow-red-600/30 ring-2 ring-red-400 hover:ring-4'
+                    : 'bg-transparent border-2 border-red-500 hover:bg-red-600 hover:text-white text-white hover:border-red-700 shadow-sm hover:shadow-md hover:scale-105 ring-2 ring-red-400 hover:ring-4'}
+                  `}
+                >
+                  {btn.icon}
+                  <span>{btn.label}</span>
+                </a>
+              ))}
             </div>
           </div>
         </section>
@@ -183,7 +170,6 @@ export default function Home() {
                     href={creator.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    // Note: Applying hover scale/shadow on the Link, stagger translation on the motion.div
                     className="block bg-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-100 overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.15] group-hover:z-10 group-hover:shadow-red-400/40 group-focus:scale-[1.15] group-focus:z-10 group-focus:shadow-red-400/40"
                   >
                      {/* Image Area */}
@@ -217,18 +203,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
       </main>
-
-      {/* Footer - Updated max-width */}
-       <footer className="py-8 border-t border-gray-200 bg-white text-center text-gray-500 text-sm">
-         {/* Replaced container with max-w-[1400px] */}
-         <div className="max-w-[1400px] mx-auto px-6">
-           © {new Date().getFullYear()} BattleTCG. All rights reserved. |
-           <Link href="/privacy" className="hover:text-red-600 px-2">Privacy Policy</Link> |
-           <Link href="/terms" className="hover:text-red-600 px-2">Terms of Service</Link>
-         </div>
-       </footer>
     </div>
   );
 }

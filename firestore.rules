@@ -2,9 +2,95 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow all reads and writes for testing
-    match /{document=**} {
-      allow read, write: if true; // WARNING: Open access for testing only!
+    // User profile rules
+    match /userProfiles/{userId} {
+      // Users can read their own profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // User can create their own profile (initial signup)
+      allow create: if request.auth != null && 
+                     request.auth.uid == userId && 
+                     request.resource.data.role == 'player';
+      
+      // Users can update their own profiles but cannot change their role
+      allow update: if request.auth != null && 
+                     request.auth.uid == userId && 
+                     request.resource.data.role == resource.data.role;
+      
+      // Only master accounts can read all profiles
+      allow read: if request.auth != null && 
+                    exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                    get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+      
+      // Only master accounts can update any profile and change roles
+      allow update: if request.auth != null && 
+                     exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    // Tournament rules
+    match /tournaments/{tournamentId} {
+      // Anyone can read tournaments
+      allow read: if true;
+      
+      // Only creators and masters can create tournaments
+      allow create: if request.auth != null && 
+                     exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'creator' ||
+                      get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master');
+      
+      // Creators can only update their own tournaments
+      allow update, delete: if request.auth != null && 
+                             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'creator' &&
+                             resource.data.creatorId == request.auth.uid;
+      
+      // Masters can update any tournament
+      allow update, delete: if request.auth != null && 
+                             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    // Global settings - only accessible by master accounts
+    match /globalSettings/{document=**} {
+      allow read, write: if request.auth != null && 
+                          exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                          get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    // Announcements - only writable by master accounts, readable by all
+    match /announcements/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                    exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                    get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    // Creator content - readable by all, writable by the creator who owns it or master accounts
+    match /creatorContent/{contentId} {
+      allow read: if true;
+      
+      // Creator can update their own content
+      allow create, update, delete: if request.auth != null && 
+                                    exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                                    get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'creator' &&
+                                    request.resource.data.creatorId == request.auth.uid;
+      
+      // Masters can update any creator content
+      allow create, update, delete: if request.auth != null && 
+                                    exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                                    get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    // Player data - readable and writable by the player or master accounts
+    match /playerData/{userId}/{document=**} {
+      // Player can read and write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Masters can read and write any player's data
+      allow read, write: if request.auth != null && 
+                          exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+                          get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'master';
     }
   }
 }

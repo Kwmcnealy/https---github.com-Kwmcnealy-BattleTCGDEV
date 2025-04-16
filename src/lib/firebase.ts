@@ -1,7 +1,14 @@
 'use client';
 
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
+import { 
+  getAuth, 
+  Auth, 
+  GoogleAuthProvider, 
+  GithubAuthProvider, 
+  FacebookAuthProvider,
+  TwitterAuthProvider
+} from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 // import { getAnalytics } from "firebase/analytics";
 
@@ -33,5 +40,22 @@ if (!getApps().length) {
 const auth: Auth = getAuth(firebaseApp);
 const db: Firestore = getFirestore(firebaseApp);
 
-// Export services
-export { firebaseApp, auth, db }; 
+// Initialize providers
+const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
+const twitterProvider = new TwitterAuthProvider();
+
+// Configure providers
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// Export services and providers
+export { 
+  firebaseApp, 
+  auth, 
+  db,
+  googleProvider,
+  githubProvider,
+  facebookProvider,
+  twitterProvider
+}; 
